@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+char keySquare[5][5];
+
+void generateKeySquare(char key[]) {
+    int used[26] = {0};
+    int row = 0, col = 0;
+
+    for (int i = 0; key[i] != '\0'; i++) {
+        if (key[i] == 'J') key[i] = 'I';
+        if (!used[key[i] - 'A']) {
+            used[key[i] - 'A'] = 1;
+            keySquare[row][col++] = key[i];
+            if (col == 5) { col = 0; row++; }
+        }
+    }
+
+    for (char c = 'A'; c <= 'Z'; c++) {
+        if (c == 'J') continue;
+        if (!used[c - 'A']) {
+            used[c - 'A'] = 1;
+            keySquare[row][col++] = c;
+            if (col == 5) { col = 0; row++; }
+        }
+    }
+}
+
+void printMatrix() {
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            printf("%c ", keySquare[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+int main() {
+    char key[50];
+    printf("Enter keyword: ");
+    gets(key);
+
+    for (int i = 0; key[i]; i++) key[i] = toupper(key[i]);
+
+    generateKeySquare(key);
+    printf("Playfair Matrix:\n");
+    printMatrix();
+
+    return 0;
+}
