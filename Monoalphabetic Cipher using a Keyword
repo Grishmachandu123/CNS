@@ -1,0 +1,29 @@
+#include <stdio.h>
+#include <string.h>
+
+char *generateCipherAlphabet(char keyword[]) {
+    static char cipher[26];
+    int used[26] = {0}, index = 0;
+
+    for (int i = 0; keyword[i]; i++) {
+        if (!used[keyword[i] - 'A']) {
+            cipher[index++] = keyword[i];
+            used[keyword[i] - 'A'] = 1;
+        }
+    }
+
+    for (char c = 'A'; c <= 'Z'; c++) {
+        if (!used[c - 'A']) {
+            cipher[index++] = c;
+        }
+    }
+    return cipher;
+}
+
+int main() {
+    char keyword[] = "CIPHER";
+    char *cipherAlphabet = generateCipherAlphabet(keyword);
+    
+    printf("Cipher Alphabet:\n%s\n", cipherAlphabet);
+    return 0;
+}
