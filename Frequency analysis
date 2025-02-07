@@ -1,0 +1,24 @@
+#include <stdio.h>
+#include <string.h>
+
+void frequencyAnalysis(char text[]) {
+    int freq[26] = {0};
+
+    for (int i = 0; text[i] != '\0'; i++) {
+        if (text[i] >= 'a' && text[i] <= 'z') freq[text[i] - 'a']++;
+        if (text[i] >= 'A' && text[i] <= 'Z') freq[text[i] - 'A']++;
+    }
+
+    for (int i = 0; i < 26; i++) {
+        printf("%c: %d\n", 'A' + i, freq[i]);
+    }
+}
+
+int main() {
+    char text[200];
+    printf("Enter ciphertext: ");
+    gets(text);
+
+    frequencyAnalysis(text);
+    return 0;
+}
