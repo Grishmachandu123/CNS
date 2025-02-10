@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#define BLOCK_SIZE 2
+
+// Function to calculate the determinant of a matrix
+int determinant(int mat[BLOCK_SIZE][BLOCK_SIZE], int n) {
+    int det = 0;
+    if (n == 2)
+        return mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
+    return det;
+}
+
+// Function to calculate the modular inverse of a number
+int modInverse(int a, int m) {
+    a = a % m;
+    for (int x = 1; x < m; x++)
+        if ((a * x) % m == 1)
+            return x;
+    return -1;
+}
+
+// Function to perform matrix multiplication
+void matrixMultiply(int key[BLOCK_SIZE][BLOCK_SIZE], int vec[BLOCK_SIZE], int result[BLOCK_SIZE]) {
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+        result[i] = 0;
+        for (int j = 0; j < BLOCK_SIZE; j++) {
+            result[i] += key[i][j] * vec[j];
+        }
+        result[i] %= 26; // Modulo 26 for letters
+    }
+}
+
+// Function to recover the key matrix
+void recoverKey(int plaintext[BLOCK_SIZE], int ciphertext[BLOCK_SIZE], int key[BLOCK_SIZE][BLOCK_SIZE]) {
+    int det = determinant(key, BLOCK_SIZE);
+    int invDet = modInverse(det, 26);
+
+    // Calculate the inverse of the key matrix
+    int invKey[BLOCK_SIZE][BLOCK_SIZE];
+    invKey[0][0] = (key[1][1] * invDet) % 26;
+    invKey[0][1] = (-key[0][1] * invDet) % 26;
+    invKey[1][0] = (-key[1][0] * invDet) % 26;
+    invKey[1][1] = (key[0][0] * invDet) % 26;
+
+    // Recover the key
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+        for (int j = 0; j < BLOCK_SIZE; j++) {
+            if (invKey[i][j] < 0) invKey[i][j] += 26;
+            key[i][j] = (ciphertext[i] * invKey[i][j]) % 26;
+        }
+    }
+}
+
+int main() {
+    int plaintext[BLOCK_SIZE] = {0, 1}; // Example plaintext
+    int ciphertext[BLOCK_SIZE] = {2, 3}; // Example ciphertext
+    int key[BLOCK_SIZE][BLOCK_SIZE] = {{0}};
+
+    recoverKey(plaintext, ciphertext, key);
+
+    printf("Recovered Key Matrix:\n");
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+        for (int j = 0; j < BLOCK_SIZE; j++) {
+            printf("%d ", key[i][j]);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
