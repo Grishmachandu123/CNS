@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <math.h>
+
+
+int modExp(int base, int exponent, int mod) {
+    int result = 1;
+    while (exponent > 0) {
+        if (exponent % 2 == 1)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exponent = exponent / 2;
+    }
+    return result;
+}
+
+int main() {
+    int q = 23; 
+    int a = 5;  
+    int xA = 6, xB = 15; 
+    int yA, yB, kA, kB;
+
+   
+    yA = modExp(a, xA, q);
+
+    
+    yB = modExp(a, xB, q);
+
+    
+    kA = modExp(yB, xA, q);
+    kB = modExp(yA, xB, q);
+
+    printf("Alice's Shared Secret: %d\n", kA);
+    printf("Bob's Shared Secret: %d\n", kB);
+
+    return 0;
+}
