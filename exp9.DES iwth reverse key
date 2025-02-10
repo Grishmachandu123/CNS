@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <string.h>
+
+// Example DES subkeys (16 keys, each 48 bits)
+unsigned long long subkeys[16] = {
+    0x123456789ABC, 0x23456789ABCD, 0x3456789ABCDE, 0x456789ABCDEF,
+    0x56789ABCDEF0, 0x6789ABCDEF01, 0x789ABCDEF012, 0x89ABCDEF0123,
+    0x9ABCDEF01234, 0xABCDEF012345, 0xBCDEF0123456, 0xCDEF01234567,
+    0xDEF012345678, 0xEF0123456789, 0xF0123456789A, 0x0123456789AB
+};
+
+// Function to perform DES decryption
+void desDecrypt(unsigned long long ciphertext, unsigned long long *plaintext) {
+    unsigned long long temp = ciphertext;
+    for (int i = 15; i >= 0; i--) {
+        // Reverse key order for decryption
+        temp = temp ^ subkeys[i]; // Example XOR operation (simplified)
+    }
+    *plaintext = temp;
+}
+
+int main() {
+    unsigned long long ciphertext = 0x123456789ABCDEF; // Example ciphertext
+    unsigned long long plaintext;
+
+    desDecrypt(ciphertext, &plaintext);
+
+    printf("Decrypted Plaintext: %llx\n", plaintext);
+
+    return 0;
+}
