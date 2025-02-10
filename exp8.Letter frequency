@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define ALPHABET_SIZE 26
+
+// English letter frequency
+const float englishFreq[ALPHABET_SIZE] = {
+    8.2, 1.5, 2.8, 4.3, 12.7, 2.2, 2.0, 6.1, 6.7, 0.2, 0.8, 4.0, 2.4,
+    6.7, 7.5, 1.9, 0.1, 6.0, 6.3, 9.1, 2.8, 1.0, 2.4, 0.2, 2.0, 0.1
+};
+
+// Function to calculate the frequency score of a text
+float frequencyScore(char *text) {
+    int freq[ALPHABET_SIZE] = {0};
+    int len = strlen(text);
+    float score = 0.0;
+
+    for (int i = 0; i < len; i++) {
+        if (isalpha(text[i])) {
+            freq[tolower(text[i]) - 'a']++;
+        }
+    }
+
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        score += abs((freq[i] / (float)len) * 100 - englishFreq[i]);
+    }
+
+    return score;
+}
+
+// Function to decrypt additive cipher with a given key
+void decryptAdditiveCipher(char *ciphertext, int key, char *plaintext) {
+    int len = strlen(ciphertext);
+    for (int i = 0; i < len; i++) {
+        if (isalpha(ciphertext[i])) {
+            char base = islower(ciphertext[i]) ? 'a' : 'A';
+            plaintext[i] = (ciphertext[i] - base - key + 26) % 26 + base;
+        } else {
+            plaintext[i] = ciphertext[i];
+        }
+    }
+    plaintext[len] = '\0';
+}
+
+// Function to perform letter frequency attack
+void frequencyAttack(char *ciphertext, int topN) {
+    char plaintext[256];
+    float scores[ALPHABET_SIZE] = {0};
+
+    for (int key = 0; key < ALPHABET_SIZE; key++) {
+        decryptAdditiveCipher(ciphertext, key, plaintext);
+        scores[key] = frequencyScore(plaintext);
+    }
+
+    // Sort keys by score (lower score is better)
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        for (int j = i + 1; j < ALPHABET_SIZE; j++) {
+            if (scores[i] > scores[j]) {
+                float tempScore = scores[i];
+                scores[i] = scores[j];
+                scores[j] = tempScore;
+
+                int tempKey = i;
+                i = j;
+                j = tempKey;
+            }
+        }
+    }
+
+    // Print top N possible plaintexts
+    for (int i = 0; i < topN; i++) {
+        decryptAdditiveCipher(ciphertext, i, plaintext);
+        printf("Key %d: %s (Score: %.2f)\n", i, plaintext, scores[i]);
+    }
+}
+
+int main() {
+    char ciphertext[] = "Khoor Zruog"; // Example ciphertext
+    int topN = 10;
+
+    printf("Top %d possible plaintexts:\n", topN);
+    frequencyAttack(ciphertext, topN);
+
+    return 0;
+}
