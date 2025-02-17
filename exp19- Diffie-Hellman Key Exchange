@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+
+#define BLOCK_SIZE 1024
+#define LANE_SIZE 64
+#define NUM_LANES (BLOCK_SIZE / LANE_SIZE)
+uint64_t state_matrix[NUM_LANES];
+void initialize_state() {
+    for (int i = 0; i < NUM_LANES; i++) {
+        state_matrix[i] = (i < (NUM_LANES / 2)) ? rand() | 1 : 0; 
+    }
+}
+int count_zero_lanes() {
+    int count = 0;
+    for (int i = NUM_LANES / 2; i < NUM_LANES; i++) {
+        if (state_matrix[i] == 0) count++;
+    }
+    return count;
+}
+void simulate_sha3_diffusion() {
+    int rounds = 0;
+    clock_t start_time = clock();
+    while (count_zero_lanes() > 0) {
+        for (int i = NUM_LANES / 2; i < NUM_LANES; i++) {
+            state_matrix[i] ^= rand(); 
+        }
+        rounds++;
+    }
+    clock_t end_time = clock();
+    double elapsed_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    printf("All zero lanes have been filled after %d rounds (Time elapsed: %.6f seconds)\n", rounds, elapsed_time);
+}
+uint64_t mod_exp(uint64_t base, uint64_t exp, uint64_t mod) {
+    uint64_t result = 1;
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = (result * base) % mod;
+        }
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return result;
+}
+
+void diffie_hellman(uint64_t a, uint64_t q, uint64_t x1, uint64_t x2) {
+    uint64_t A = mod_exp(a, x1, q);
+    uint64_t B = mod_exp(a, x2, q);
+    uint64_t key1 = mod_exp(B, x1, q);
+    uint64_t key2 = mod_exp(A, x2, q);
+    printf("Shared key: %llu (computed by both parties)\n", key1);
+}
+
+int main() {
+    srand(time(NULL));
+    initialize_state();
+    simulate_sha3_diffusion();
+    uint64_t a = 5, q = 23, x1 = 6, x2 = 15;
+    printf("Executing Diffie-Hellman Key Exchange...\n");
+    diffie_hellman(a, q, x1, x2);
+    return 0;
+}
